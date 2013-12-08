@@ -16,6 +16,7 @@
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
     <link href="assets/css/validate-me.css" rel="stylesheet">
+    <link href ="theme/style.css" rel="stylesheet">
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-static-top">

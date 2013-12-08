@@ -1,0 +1,30 @@
+th {
+text-align:left;
+}
+
+input[type="number"]{
+height:30px;
+}
+
+.event-record-header {
+margin-bottom: 15px;
+float: left;
+width: 100%;
+}
+
+.date {
+float:left;
+width:350px;
+font-size:1.6em;
+}
+
+.total {
+float: right;
+font-size: 1.6em;
+margin-right: 70px;
+}
+
+input.select-event-id {
+margin-top: -9px;
+height: 30px;
+}
