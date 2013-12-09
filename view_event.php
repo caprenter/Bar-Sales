@@ -40,8 +40,8 @@ include('theme/header.php');
           //if (isset($event_id)) {
           //  $sql .= " WHERE event_record.id = $event_id"; 
           //}       
-          $sql .= " ORDER BY event_record.id";
-                  //ORDER BY date DESC";
+          //$sql .= " ORDER BY event_record.id";
+          $sql .= " ORDER BY date DESC";
 
           if(!$result = $db->query($sql)){
               die('There was an error running the query [' . $db->error . ']');
@@ -63,7 +63,17 @@ include('theme/header.php');
     <?php 
       if (isset($event_id)) {
         $event_details = get_event_details($event_id); ?>
-        <h1><?php echo $event_details['name']; ?></h1>
+        <div class="row">
+        <div class="span4">
+            <h1><?php echo $event_details['name']; ?></h1>
+        </div>
+        <div class="span2" style="margin-top: 17px;">
+          <form action="sales_entry_form" method="post">
+            <input type="hidden" name="event-id" value="<?php echo $event_id; ?>">
+            <input class="event-id" type="submit" value="Edit">
+         </form>
+        </div>
+        </div>
         <div class="date"><?php echo date("jS F Y", strtotime($event_details['date'])); ?></div>
         <div class="total"><?php echo '&pound;' . number_format(get_sales_total($event_id),2, '.', ''); ?></div>
       <?php } ?>
@@ -75,7 +85,7 @@ include('theme/header.php');
         $html = theme_sales_table($event_id);
         echo $html;
         get_event_details ($event_id);
-      }
+      } 
     ?>
   </div><!--end span10-->
 			

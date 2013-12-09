@@ -30,7 +30,7 @@
           <!--<a class="brand" href="<?php echo $host ?>">IATI Public Validator</a>-->
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li<?php if ($toptab=='home') { ?> class="active"<?php } ?>><a href="<?php echo $host ?>"><i class="icon-home"></i> Home</a></li>
+              <li<?php if ($toptab=='home') { ?> class="active"<?php } ?>><a href="<?php echo $domain ?>"><i class="icon-home"></i> Home</a></li>
               <!--<li<?php if ($toptab=='common_errors') { ?> class="active"<?php } ?>><a href="<?php echo $host ?>common_errors.php"><i class="icon-asterisk"></i> Common errors</a></li>
               <li<?php if ($toptab=='developers') { ?> class="active"<?php } ?>><a href="<?php echo $host ?>developers.php"><i class="icon-asterisk"></i> Developers</a></li>-->
               <!--<li><a href="#about">About</a></li>
