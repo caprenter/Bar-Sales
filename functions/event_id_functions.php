@@ -31,7 +31,8 @@ function theme_sales_table ($event_id) {
 
   $sql = "SELECT * FROM sales_record 
           JOIN stock on sales_record.stock_id = stock.id
-          WHERE event_record_id = $event_id";
+          WHERE event_record_id = $event_id
+          ORDER BY weight";
 
   if(!$result = $db->query($sql)){
       die('There was an error running the query [' . $db->error . ']');
@@ -77,7 +78,8 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   //Get every sales record which has the following tables:
   //event_record_id,	stock_id,	number_sold,	price
   $sql = "SELECT * FROM sales_record 
-          JOIN stock on sales_record.stock_id = stock.id";
+          JOIN stock on sales_record.stock_id = stock.id
+          ORDER BY weight";
           
   if ($event_type_id !=NULL) {
     //We need to get all the event_record_ids for that event.
@@ -86,7 +88,8 @@ function theme_total_sales_table ($event_type_id = FALSE) {
             FROM sales_record 
             LEFT JOIN stock ON sales_record.stock_id = stock.id
             LEFT JOIN event_record ON sales_record.event_record_id = event_record.id
-            WHERE event_record.event_type_id = $event_type_id";  
+            WHERE event_record.event_type_id = $event_type_id
+            ORDER BY weight";  
     //echo $sql;
   }
   //Then run through the records calculating total numbers sold and the 
@@ -166,5 +169,43 @@ function get_event_type_name($event_type_id) {
     $event_name = $row['name'];
   }
   return $event_name;
+}
+
+/* Delete a sales record of a given event_id
+ * 
+ * name: delete_sales_record();
+ * @param $event_id INT Id of an event_record
+ * @return
+ * 
+ */
+
+function delete_sales_record($event_id) {
+  global $db;
+  //If an event_record has no sales it won't be removed this way
+  $sql = "DELETE event_record, sales_record 
+          FROM event_record JOIN sales_record 
+          WHERE event_record.id=sales_record.event_record_id 
+          AND event_record.id=$event_id;";
+
+          
+  if(!$result = $db->query($sql)){
+    die('There was an error running the query [' . $db->error . ']');
+  } else {
+    if ($db->affected_rows > 0) { //event_record and sales_record were deleted
+      return TRUE;
+    } else { //Nothing was deleted - try to remove just the event_record
+      $sql = "DELETE FROM event_record 
+              WHERE event_record.id=$event_id;";
+      if (!$result = $db->query($sql)) {
+        die('There was an error running the query [' . $db->error . ']');
+      } else {
+        if ($db->affected_rows > 0) { //event_record was deleted 
+          return TRUE;
+        } else { //Nothing was deleted 
+          return FALSE;
+        }
+      }
+    }
+  }
 }
 ?>

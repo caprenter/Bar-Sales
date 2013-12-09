@@ -12,9 +12,13 @@ if (isset($_POST) && !empty($_POST)) {
     //print_r($fetch_data);
   } else {
     //OR we are processing this form to save data
-    $event_id = save_event_sales_data($_POST);
-    //Redirect to event page view once saved
-    header('Location: ' . $domain . '/view_event.php?eventID=' . $event_id);
+    if (!isset($_POST['datepicker']) || empty($_POST['datepicker']) || !isset($_POST['event_type']) || empty($_POST['event_type'])) {
+      $msg = '<div class="alert alert-danger">Why you little...! Fill in stuff properly!</div>';
+    } else {
+      $event_id = save_event_sales_data($_POST);
+      //Redirect to event page view once saved
+      header('Location: ' . $domain . '/view_event.php?eventID=' . $event_id);
+    }
   }
 }
 
@@ -123,7 +127,11 @@ function save_event_sales_data($_POST) {
     $quantity = 'quantity' . $row['id']; //ie quantity1, quantity2, etc - these are possible post variables
     $stock[$row['id']] = $row['retail_price']; //store price in array indexed by id
     if (isset($_POST[$quantity])) { //if the post variable e.g. quantity1 exists....
-      if( $quantity_value =  filter_var($_POST[$quantity],FILTER_SANITIZE_NUMBER_INT) ) {
+      if($_POST[$quantity] == 0) { //Filter sanitize int disguards zero, so set this special case up to record zero sales
+        $quantity_value = 0;
+        $quantities[$row['id']] = $quantity_value;
+        unset($quantity_value);
+      } elseif ( $quantity_value =  filter_var($_POST[$quantity],FILTER_SANITIZE_NUMBER_INT) ) {
         $quantities[$row['id']] = $quantity_value;
         unset($quantity_value);
       }

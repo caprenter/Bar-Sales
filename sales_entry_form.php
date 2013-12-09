@@ -19,6 +19,11 @@ include('theme/header.php');
 <div class="container">
   <div class="row">
     <div class="span10" style="float:right">
+      <?php
+        if (isset($msg)) {
+          echo $msg;
+        }
+      ?>
       <form action="sales_entry_form.php" method="post">
         <label for="datepicker">Date</label>
         <p>
@@ -64,7 +69,7 @@ include('theme/header.php');
           </thead>
           <tbody>
           <?php
-            $sql = "SELECT * FROM `stock`";
+            $sql = "SELECT * FROM `stock` ORDER BY weight";
 
             if(!$result = $db->query($sql)){
                 die('There was an error running the query [' . $db->error . ']');

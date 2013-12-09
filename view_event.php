@@ -1,6 +1,41 @@
 <?php
 include('settings.php');
 include('functions/event_id_functions.php');
+
+//Make a database connection
+$db = new mysqli($host, $database_user, $database_password, $database_name);
+
+if($db->connect_errno > 0){
+    die('Unable to connect to database [' . $db->connect_error . ']');
+}
+
+//Delete a sales/event record if requested
+//We need to delete the sales record and the event record as both are 
+//related
+if (isset($_POST) && !empty($_POST)) {
+  if (isset($_POST["event-id"]) && isset($_POST["delete"])) {
+    $event_id = filter_var($_POST["event-id"], FILTER_SANITIZE_NUMBER_INT);
+    $delete = filter_var($_POST["delete"], FILTER_SANITIZE_STRING);
+    if (filter_var($event_id, FILTER_VALIDATE_INT) && $delete == 'Delete') {
+      if (delete_sales_record($event_id)) {
+        $msg = '
+        <div class="alert alert-success">Event ' . $event_id . ' successfully deleted</div>';
+        unset($event_id);
+      } else {
+        $msg = '<div class="alert alert-danger">Event NOT deleted. Try again.</div>';
+        unset($event_id);
+      }
+
+    }
+    //print_r($fetch_data);
+  } else {
+    //Redirect to home
+    header('Location: ' . $domain);
+  }
+} 
+
+
+
 //Process $_GET vars
 if (isset($_GET)) {
   if (isset($_GET["eventID"])) {
@@ -17,12 +52,10 @@ if (isset($_GET)) {
   } 
 }
 //echo $event_id;
-//Make a database connection
-$db = new mysqli($host, $database_user, $database_password, $database_name);
 
-if($db->connect_errno > 0){
-    die('Unable to connect to database [' . $db->connect_error . ']');
-}
+
+
+
 
 include('theme/header.php');
 ?>
@@ -31,6 +64,11 @@ include('theme/header.php');
 <div class="container">
   <div class="row">
     <div class="span10" style="float:right">
+      <?php
+        if (isset($msg)) {
+          echo $msg;
+        }
+      ?>
       <form action="view_event.php" method="get"> 
         <select name="eventID" onchange='this.form.submit()'>
           <option value="0">--Select--</option>
@@ -64,15 +102,23 @@ include('theme/header.php');
       if (isset($event_id)) {
         $event_details = get_event_details($event_id); ?>
         <div class="row">
-        <div class="span4">
-            <h1><?php echo $event_details['name']; ?></h1>
-        </div>
-        <div class="span2" style="margin-top: 17px;">
-          <form action="sales_entry_form" method="post">
-            <input type="hidden" name="event-id" value="<?php echo $event_id; ?>">
-            <input class="event-id" type="submit" value="Edit">
-         </form>
-        </div>
+          <div class="span4">
+              <h1><?php echo $event_details['name']; ?></h1>
+          </div>
+          <!-- Edit Button-->
+          <div class="span1" style="margin-top: 17px;">
+            <form action="sales_entry_form" method="post">
+              <input type="hidden" name="event-id" value="<?php echo $event_id; ?>">
+              <input class="event-id" type="submit" value="Edit">
+           </form>
+          </div>
+          <!-- Delete Button-->
+          <div class="span1" style="margin-top: 17px;">
+            <form action="view_event.php" method="post">
+              <input type="hidden" name="event-id" value="<?php echo $event_id; ?>">
+              <input name ="delete" class="event-id" type="submit" value="Delete" Onclick="ConfirmDelete()">
+           </form>
+          </div>
         </div>
         <div class="date"><?php echo date("jS F Y", strtotime($event_details['date'])); ?></div>
         <div class="total"><?php echo '&pound;' . number_format(get_sales_total($event_id),2, '.', ''); ?></div>
@@ -100,9 +146,19 @@ include('theme/header.php');
 
 
 
-
+</div><!--end Container-->
 <?php
 include('theme/footer.php');
-
-
 ?>
+<script>
+//Thanks: http://stackoverflow.com/questions/9139075/confirm-message-before-delete
+function ConfirmDelete()
+{
+  var x = confirm("Are you sure you want to delete?");
+  if (x)
+      return true;
+  else
+    return false;
+}
+</script>
+
