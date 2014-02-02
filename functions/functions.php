@@ -552,6 +552,12 @@ function theme_sales_table ($event_id) {
 
 function theme_total_sales_table ($event_type_id = FALSE) { 
   global $db;
+  global $white_wine_ids;
+  global $red_wine_ids;
+  global $red_wine_bottle_id;
+  global $white_wine_bottle_id;
+  $red_ml = 0; //Red Wine mililitres sold
+  $white_ml = 0; //White Wine mililitres sold
     $html = '<table class="table table-striped">
               <thead>
                 <th>Item</th>
@@ -620,6 +626,40 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   }
   //echo $all_sales;
   //print_r($totals);
+  
+  //Wine
+  //Work out how many bottles of wine the number of glasses sold equates to.
+  foreach ($totals as $stock_id => $value) {
+    if (in_array($stock_id,$white_wine_ids)) {
+       //sold_amount will be a number of glasses
+       //received_amount will be meaningless - we need to know  how many bottles we've bought
+       //ids here are 17=SM, 18=MD, 16=LG
+       //echo $stock_id;
+       $white_ml = sum_millilitres_wine($stock_id,$white_ml,$white_wine_ids,$value['total_sold']);
+    }
+    if (in_array($stock_id,$red_wine_ids)) {
+       //sold_amount will be a number of glasses
+       //received_amount will be meaningless - we need to know  how many bottles we've bought
+       //ids here are 19,20,21
+       $red_ml = sum_millilitres_wine($stock_id,$red_ml,$red_wine_ids,$value['total_sold']);
+       //echo $stock_id;
+       echo $red_ml.",";
+    }
+  }
+  $white_bottles_by_glass = calculate_number_of_bottles ($white_ml);
+  $red_bottles_by_glass = calculate_number_of_bottles ($red_ml);
+  if (isset($total[$white_wine_bottle_id])) { //then we have also sold some bottles
+    $all_white = $white_bottles_by_glass + $total[$white_wine_bottle_id]['total_sold'];
+  } else {
+    $all_white = $white_bottles_by_glass;
+  }
+  if (isset($total[$red_wine_bottle_id])) { //then we have also sold some bottles
+    $all_red = $red_bottles_by_glass + $total[$red_wine_bottle_id]['total_sold'];
+  } else {
+    $all_red = $red_bottles_by_glass;
+  }
+    
+  
   foreach ($totals as $total) {
   $html .= '<tr>';
       $html .= '<td>' . $total['name'] . '</td>';
@@ -630,11 +670,36 @@ function theme_total_sales_table ($event_type_id = FALSE) {
       $html .= '<td>' . round(100 * $total['total_sold'] / $all_sales) . '</td>';
       $html .= '<td>' . number_format($total['total_value'],2, '.', '') . '</td>';
     $html .= '</tr>';
+    
   }
-
+  if (isset($all_white)) { //then we have also sold some bottles
+    $html .= '<tr class="wine white">';
+      $html .= '<td>All White Wine</td>';
+      $html .= '<td>' . $all_white . '</td>';
+      if ($event_type_id !=NULL) {
+        $html .= '<td>' . round($all_white/count($event_ids)) . '</td>';
+      }
+      $html .= '<td> </td>';
+      $html .= '<td> </td>';
+    $html .= '</tr>';
+  }
+  if (isset($all_red)) { //then we have also sold some bottles
+     $html .= '<tr class="wine red">';
+      $html .= '<td>All Red Wine</td>';
+      $html .= '<td>' . $all_red . '</td>';
+      if ($event_type_id !=NULL) {
+        $html .= '<td>' . round($all_red/count($event_ids)) . '</td>';
+      }
+      $html .= '<td> </td>';
+      $html .= '<td> </td>';
+    $html .= '</tr>';
+  }
     $html .= '</tbody>';
   $html .= '</table>';
   echo $html;
+  echo "Red Wine: " . $red_bottles_by_glass;
+  echo '<br/>';
+  echo "White Wine: " . $white_bottles_by_glass;
   //return $html;
   //echo '&pound;' . number_format($total,2, '.', '');
 }
