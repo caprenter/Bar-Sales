@@ -7,4 +7,5 @@ $database_password = "";
 
 //Domain info
 $domain = "";
+$site_name = "";
 ?>
