@@ -20,7 +20,7 @@ include('theme/header.php');
 <div class="container">
   <div class="row">
     <div class="span10" style="float:right">
-      <div class="alert alert-warning">Are the all prices up to date?</div>
+      <div class="alert alert-error">Are the all prices up to date?</div>
       <h1>Enter Sales</h1>
       <?php
         if (isset($msg)) {

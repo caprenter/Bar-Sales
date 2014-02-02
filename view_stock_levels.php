@@ -24,7 +24,7 @@ $last_stock_take_data = last_stock_take_data($date);
 <div class="container">
   <div class="row">
     <div class="span10" style="float:right">
-      <div class="alert alert-warning">Only update stock levels if all sales and incoming stock records are up to date.</div>
+      <div class="alert alert-error">Only update stock levels if all sales and incoming stock records are up to date.</div>
       <h1>Stock Levels</h1>
       <p>Last Stock Take Date: <?php echo date("jS F Y", strtotime($last_stock_take_data['date'])); ?></p>
       <div class="event-record-header">
