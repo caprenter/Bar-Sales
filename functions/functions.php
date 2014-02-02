@@ -441,26 +441,14 @@ function theme_stock_level_table ($received,$sold,$stock_take_data) {
    if (in_array($row['id'],$white_wine_ids)) {
      //sold_amount will be a number of glasses
      //received_amount will be meaningless - we need to know  how many bottles we've bought
-     //17=SM, 18=MD, 16=LG
-      switch ($row['id']) {
-        case $white_wine_ids["small"]:
-          $white_ml += 125 * $sold_amount;
-          break;
-        case $white_wine_ids["medium"]:
-          $white_ml += 175 * $sold_amount;
-          break;
-        case $white_wine_ids["large"]:
-          $white_ml += 250 * $sold_amount;
-          break;
-      }
+     //ids here are 17=SM, 18=MD, 16=LG
+     $white_ml = sum_millilitres_wine($row['id'],$white_ml,$white_wine_ids,$sold_amount);
    }
+   //Once we hit the White Wine results we need to turn the glasses sold
+   //into a number of bottles opened, and add that to the number of bottles sold.
    if ($row['id'] == $white_wine_bottle_id) { //This is the ID for white wine bottles
-     if ($white_ml !=0) {
-      $white_bottles = ceil($white_ml/750);
-      } else {
-        $white_bottles = 0;
-      }
-      $sold_amount = $white_bottles;
+      $white_bottles = calculate_number_of_bottles ($white_ml);
+      $sold_amount += $white_bottles; //add the glasses sold to the bottles sold amount
     }
       
    
@@ -469,25 +457,12 @@ function theme_stock_level_table ($received,$sold,$stock_take_data) {
      //sold_amount will be a number of glasses
      //received_amount will be meaningless - we need to know  how many bottles we've bought
      //19=SM, 20=MD, 21=LG
-     switch ($row['id']) {
-       case $red_wine_ids["small"]:
-        $red_ml += 125 * $sold_amount;
-        break;
-      case $red_wine_ids["medium"]:
-        $red_ml += 175 * $sold_amount;
-        break;
-      case $red_wine_ids["large"]:
-        $red_ml += 250 * $sold_amount;
-        break;
-      }
+     $red_ml = sum_millilitres_wine($row['id'],$red_ml,$red_wine_ids,$sold_amount);
+
     }
     if ($row['id'] == $red_wine_bottle_id) { //This is the ID for red wine bottles
-      if ($red_ml !=0) {
-      $red_bottles = ceil($red_ml/750);
-      } else {
-        $red_bottles = 0;
-      }
-      $sold_amount = $red_bottles;
+      $red_bottles = calculate_number_of_bottles ($red_ml);
+      $sold_amount += $red_bottles; //add the glasses sold to the bottles sold amount
     }
     //echo $white_ml;
     //echo $red_ml;
@@ -495,8 +470,12 @@ function theme_stock_level_table ($received,$sold,$stock_take_data) {
       $html .= '<td>' . htmlentities($row['name']) . '</td>';
       //$html .= '<td>' . $row['cost_price'] . '</td>';
       //$html .= '<td>' . $row['retail_price'] . '</td>';
-      $html .= '<td>' . $stock_amount . '</td>';        
-      $html .= '<td>' . $received_amount . '</td>';
+      if (in_array($row['id'],$wine)) {
+        $html .= '<td> </td><td> </td>';
+      } else {
+        $html .= '<td>' . $stock_amount . '</td>';        
+        $html .= '<td>' . $received_amount . '</td>';
+      }
       $html .= '<td>' . $sold_amount . '</td>';
       if (in_array($row['id'],$wine)) {
         $html .= '<td> </td><td> </td><td> </td><td> </td>';
@@ -576,9 +555,12 @@ function theme_total_sales_table ($event_type_id = FALSE) {
     $html = '<table class="table table-striped">
               <thead>
                 <th>Item</th>
-                <th>Number sold</th>
-                <th>% of Sales</th>
-                <th>Total</th>
+                <th>Number sold</th>';
+    if ($event_type_id !=NULL) { 
+      $html .= '<th>Event Average</th>';
+    }
+    $html .= '<th>% of Sales</th>
+              <th>Total</th>
               </thead>
               <tbody>';
   //Get every sales record which has the following tables:
@@ -595,7 +577,7 @@ function theme_total_sales_table ($event_type_id = FALSE) {
             LEFT JOIN stock ON sales_record.stock_id = stock.id
             LEFT JOIN event_record ON sales_record.event_record_id = event_record.id
             WHERE event_record.event_type_id = $event_type_id
-            ORDER BY weight";  
+            ORDER BY weight ";  
     //echo $sql;
   }
   //Then run through the records calculating total numbers sold and the 
@@ -605,12 +587,25 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   if(!$result = $db->query($sql)){
       die('There was an error running the query [' . $db->error . ']');
   }
+  //printf("Number of rows: %d.\n", $result->num_rows);
+  //Count the number of events this data is from
+  while ($row = $result->fetch_assoc()) {
+    $event_ids[] = $row['event_record_id'];
+  }
+  $event_ids = array_unique($event_ids);
+  //print_r($event_ids);
+  echo count($event_ids) . ' event';
+  if (count($event_ids) != 1) { echo 's'; }
+  
+  //IMPORTANT
+  mysqli_data_seek($result, 0); //allows us to re-use the buffered $result
+  
   while($row = $result->fetch_assoc()) {
     //Suppress error notices on these new array keys
     if (!isset($totals[$row['stock_id']]["total_sold"])) {
       $totals[$row['stock_id']]["total_sold"] ="";
     }
-     if (!isset($totals[$row['stock_id']]["total_value"])) {
+    if (!isset($totals[$row['stock_id']]["total_value"])) {
       $totals[$row['stock_id']]["total_value"] = "";
     }
     
@@ -629,6 +624,9 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   $html .= '<tr>';
       $html .= '<td>' . $total['name'] . '</td>';
       $html .= '<td>' . $total['total_sold'] . '</td>';
+      if ($event_type_id !=NULL) {
+        $html .= '<td>' . round($total['total_sold']/count($event_ids)) . '</td>';
+      }
       $html .= '<td>' . round(100 * $total['total_sold'] / $all_sales) . '</td>';
       $html .= '<td>' . number_format($total['total_value'],2, '.', '') . '</td>';
     $html .= '</tr>';
@@ -713,5 +711,36 @@ function theme_stock_take_list($id=FALSE) {
   }
   $html .= '</ul>';
   return $html;
+}
+
+function sum_millilitres_wine ($id,$white_ml,$white_wine_ids,$sold_amount) {
+  switch ($id) {
+        case $white_wine_ids["small"]:
+          $white_ml += 125 * $sold_amount;
+          break;
+        case $white_wine_ids["medium"]:
+          $white_ml += 175 * $sold_amount;
+          break;
+        case $white_wine_ids["large"]:
+          $white_ml += 250 * $sold_amount;
+          break;
+      }
+  return $white_ml;
+}
+/*
+ * 
+ * name: calculate_number_of_bottles
+ * @param $ml Number of mililitres
+ * @return $bottles Number of bottles
+ * 
+ */
+
+function calculate_number_of_bottles ($ml) {
+  if ($ml !=0) {
+    $bottles = ceil($ml/750);
+    } else {
+      $bottles = 0;
+    }
+  return $bottles;
 }
 ?>
