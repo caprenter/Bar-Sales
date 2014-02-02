@@ -598,10 +598,16 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   while ($row = $result->fetch_assoc()) {
     $event_ids[] = $row['event_record_id'];
   }
-  $event_ids = array_unique($event_ids);
-  //print_r($event_ids);
-  echo count($event_ids) . ' event';
-  if (count($event_ids) != 1) { echo 's'; }
+  if (isset($event_ids)) {
+    if($event_ids != NULL) {
+      $event_ids = array_unique($event_ids);
+      //print_r($event_ids);
+      echo count($event_ids) . ' event';
+      if (count($event_ids) != 1) { echo 's'; }
+    } else {
+      unset($event_ids);
+    }
+  }
   
   //IMPORTANT
   mysqli_data_seek($result, 0); //allows us to re-use the buffered $result
@@ -643,7 +649,7 @@ function theme_total_sales_table ($event_type_id = FALSE) {
        //ids here are 19,20,21
        $red_ml = sum_millilitres_wine($stock_id,$red_ml,$red_wine_ids,$value['total_sold']);
        //echo $stock_id;
-       echo $red_ml.",";
+       //echo $red_ml.",";
     }
   }
   $white_bottles_by_glass = calculate_number_of_bottles ($white_ml);
@@ -676,7 +682,7 @@ function theme_total_sales_table ($event_type_id = FALSE) {
     $html .= '<tr class="wine white">';
       $html .= '<td>All White Wine</td>';
       $html .= '<td>' . $all_white . '</td>';
-      if ($event_type_id !=NULL) {
+      if ($event_type_id !=NULL && isset($event_ids)) {
         $html .= '<td>' . round($all_white/count($event_ids)) . '</td>';
       }
       $html .= '<td> </td>';
@@ -687,7 +693,7 @@ function theme_total_sales_table ($event_type_id = FALSE) {
      $html .= '<tr class="wine red">';
       $html .= '<td>All Red Wine</td>';
       $html .= '<td>' . $all_red . '</td>';
-      if ($event_type_id !=NULL) {
+      if ($event_type_id !=NULL && isset($event_ids)) {
         $html .= '<td>' . round($all_red/count($event_ids)) . '</td>';
       }
       $html .= '<td> </td>';
@@ -697,9 +703,9 @@ function theme_total_sales_table ($event_type_id = FALSE) {
     $html .= '</tbody>';
   $html .= '</table>';
   echo $html;
-  echo "Red Wine: " . $red_bottles_by_glass;
-  echo '<br/>';
-  echo "White Wine: " . $white_bottles_by_glass;
+  //echo "Red Wine: " . $red_bottles_by_glass;
+  //echo '<br/>';
+  //echo "White Wine: " . $white_bottles_by_glass;
   //return $html;
   //echo '&pound;' . number_format($total,2, '.', '');
 }
