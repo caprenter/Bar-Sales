@@ -11,18 +11,20 @@ if($db->connect_errno > 0){
 
 //Process $_GET vars
 if (isset($_GET)) {
-  if (isset($_GET["event_type"]) && $_GET["event_type"] !=NULL) {
-    $event_type_id = filter_var($_GET['event_type'],FILTER_SANITIZE_NUMBER_INT);
-    if (!filter_var($event_type_id, FILTER_VALIDATE_INT)) {
-      unset($event_type_id);
+  if (isset($_GET["month"]) && $_GET["month"] !=NULL) {
+    $month = filter_var($_GET['month'],FILTER_SANITIZE_STRING);
+    /*if (!filter_var($month, FILTER_VALIDATE_INT)) {
+      unset($month);
     }
-    $event_type_ids = get_event_type_ids();
-    if (isset($event_type_id) && !in_array($event_type_id,$event_type_ids)) {
-      unset($event_type_id);
-    } 
+    * * */
+    //$event_ids = get_event_ids();
+    //if (isset($month) && !in_array($month,$months)) {
+    //  unset($month);
+    //} 
+    
   } 
 }
-//echo $event_type_id;
+//echo $month;
 
 
 include('theme/header.php');
@@ -32,13 +34,15 @@ include('theme/header.php');
 <div class="container">
   <div class="row">
     <div class="span10" style="float:right">
-      <h1>Sales</h1>
+      <h1>Monthly Sales</h1>
       <form action="" method="get"> 
-        <select name="event_type" onchange='this.form.submit()'>
+        <select name="month" onchange='this.form.submit()'>
           <option value="0">--Select--</option>
           <option value="">All</option>;
           <?php
-          $sql = "SELECT  * FROM event_type ORDER BY name";
+          $months = array();
+          $event_ids = array();
+          $sql = "SELECT id, date FROM event_record ORDER BY date";
 
           if(!$result = $db->query($sql)){
               die('There was an error running the query [' . $db->error . ']');
@@ -46,10 +50,17 @@ include('theme/header.php');
 
           while($row = $result->fetch_assoc()){
             //print_r($row);
-            echo '<option value="' . $row['id'] . '">' . htmlentities($row['name']) . '</option>';
-            if ($row['id'] == $event_type_id) {
-              $event_type_name = htmlentities($row['name']);
+            $month_slug = date("M Y",strtotime($row['date']));
+            if (!isset($months[$month_slug])) {
+              $months[$month_slug] = date("Y-m-01",strtotime($row['date']));
             }
+            $event_ids[] = $row['id'];
+          }
+          print_r($months);
+          $months = array_unique($months);
+          print_r($months);
+          foreach ($months as $key=>$value) {
+            echo '<option value="' . $value . '">' . htmlentities($key) . '</option>';
           }
           ?>
         </select>
@@ -59,14 +70,16 @@ include('theme/header.php');
     <div class="event-record-header">
       <?php 
         //Show total sales for an event type. e.g. film
-        if(isset($event_type_id)) {
-          echo  '<h2>' . get_event_type_name($event_type_id) . '</h2>';
-          echo '<div class="total">&pound;' . number_format(get_sales_total_event_type($event_type_id),2, '.', '') . '</div>';
-          theme_total_sales_table($event_type_id);
+        if(isset($month)) {
+          //echo $month; die;
+          //print_r($event_ids);
+          echo  '<h2>' . date("M Y",strtotime($month)) . '</h2>';
+          echo '<div class="total">&pound;' . number_format(get_sales_total_by_month($month),2, '.', '') . '</div>';
+          theme_total_sales_table(NULL,$month);
         } else {
           //Show all sales
           echo  '<h2>All Sales</h2>';
-          //echo get_sales_total_event_type(0);
+          //echo get_sales_total_by_month(0);
           echo '<div class="total">&pound;' . number_format(get_sales_total_event_type(0),2, '.', '') . '</div>';
           theme_total_sales_table();
         }
@@ -75,8 +88,8 @@ include('theme/header.php');
     <div class="events-list">
       <h2>Calculated from the following events</h2>
        <?php
-          if(isset($event_type_id)) {
-            echo theme_events_list($event_type_id); 
+          if(isset($month)) {
+            echo theme_events_list(NULL,$month); 
           } else {
             echo theme_events_list();
           }

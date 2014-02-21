@@ -1,0 +1,17 @@
+Work on stock entry - incoming stock
+
+Edit cost and sales price
+
+Edit stock items
+
+home page view
+
+Add stock, see stock levels etc
+
+Total Sales could have total amounts added up like on individual event view
+
+Donish
+Verify a date has been entered
+Store zero values
+Delete event properly
+Order stock items by weight

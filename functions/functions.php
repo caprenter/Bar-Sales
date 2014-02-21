@@ -128,6 +128,36 @@ function get_sales_total_event_type ($event_type,$from = FALSE, $to = FALSE) {
   return $total;
 }
 
+/*
+ * 
+ * name: get_sales_total_event_type
+ * @param $event_type INT Id of an event type in the database
+ * @return $total Float Total value of sales for this event type.
+ * 
+ */
+
+function get_sales_total_by_month ($from, $to = FALSE) { 
+  global $db;
+  $to = new DateTime( $from );
+  $to = $to->format( 'Y-m-t' );
+  //Get event_record_ids for this event type
+  $sql = "SELECT id FROM event_record
+          WHERE (date BETWEEN '$from' AND '$to')";
+  //if ($event_type == 0) { //Then we want all events, so select all event records
+  //  $sql = "SELECT id FROM event_record";
+  //}
+  //echo $sql;
+  if(!$result = $db->query($sql)){
+      die('There was an error running the query [' . $db->error . ']');
+  }
+  $total = 0;
+  while($row = $result->fetch_assoc()){
+    //$total = $total + $row['retail_price'] * $row['number_sold']; //Uses current retail prices that will change
+    $total = $total + get_sales_total($row['id']); //Uses price at time of sale.
+  }
+  return $total;
+}
+
 function get_event_type_name($event_type_id) {
   global $db;
 
@@ -550,7 +580,7 @@ function theme_sales_table ($event_id) {
  * 
  */
 
-function theme_total_sales_table ($event_type_id = FALSE) { 
+function theme_total_sales_table ($event_type_id = FALSE, $from = FALSE) { 
   global $db;
   global $white_wine_ids;
   global $red_wine_ids;
@@ -574,7 +604,17 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   $sql = "SELECT * FROM sales_record 
           JOIN stock on sales_record.stock_id = stock.id
           ORDER BY weight";
-          
+  if ($from != NULL) {
+    $to = new DateTime( $from );
+    $to = $to->format( 'Y-m-t' );
+    //echo $to; die;
+    $sql = "SELECT * 
+            FROM sales_record 
+            JOIN stock on sales_record.stock_id = stock.id
+            LEFT JOIN event_record ON sales_record.event_record_id = event_record.id
+            WHERE (event_record.date BETWEEN '$from' AND '$to')
+            ORDER BY weight";
+  }
   if ($event_type_id !=NULL) {
     //We need to get all the event_record_ids for that event.
     //echo $event_type_id;
@@ -596,6 +636,7 @@ function theme_total_sales_table ($event_type_id = FALSE) {
   //printf("Number of rows: %d.\n", $result->num_rows);
   //Count the number of events this data is from
   while ($row = $result->fetch_assoc()) {
+    //print_r($row);die;
     $event_ids[] = $row['event_record_id'];
   }
   if (isset($event_ids)) {
@@ -608,7 +649,7 @@ function theme_total_sales_table ($event_type_id = FALSE) {
       unset($event_ids);
     }
   }
-  
+  //print_r($event_ids);
   //IMPORTANT
   mysqli_data_seek($result, 0); //allows us to re-use the buffered $result
   
@@ -712,14 +753,20 @@ function theme_total_sales_table ($event_type_id = FALSE) {
 
 
 
-function theme_events_list($id=FALSE) {
+function theme_events_list($id=FALSE, $from = FALSE) {
   global $db;
+  global $domain;
   $sql = "SELECT  event_record.*, event_type.name FROM event_record  
                   JOIN event_type on event_record.event_type_id = event_type.id";
           if ($id != FALSE) {
             $sql .= " WHERE event_type.id = $id"; 
             $sql .= " ORDER BY date DESC";
-          }  else {
+          } elseif ($from !=FALSE) {
+            $to = new DateTime( $from );
+            $to = $to->format( 'Y-m-t' );
+            $sql .= " WHERE (event_record.date BETWEEN '$from' AND '$to')"; 
+            $sql .= " ORDER BY date DESC";
+          } else {
           //$sql .= " GROUP BY event_type.id";
             $sql .= " ORDER BY date DESC, event_type.id";
           }
@@ -730,7 +777,7 @@ function theme_events_list($id=FALSE) {
   $html = '<ul class="all-events">';
   while($row = $result->fetch_assoc()){
     //print_r($row);
-    $html .= '<li>' . date("l jS F, Y",strtotime($row['date'])) . ': ' . htmlentities($row['name']) . '</li>';
+    $html .= '<li><a href="'. $domain .'view_events.php?eventID=' . $row['id'] . '">' . date("l jS F, Y",strtotime($row['date'])) . ': ' . htmlentities($row['name']) . '</a></li>';
   }
   $html .= '</ul>';
   return $html;
