@@ -24,6 +24,11 @@
   <ul class="nav nav-list">
     <li class="nav-header">Edit</li>
     <li><a href="<?php echo $domain; ?>form_stock_items.php">Stock Items</a></li>
-
+  </ul>
+</div><!--/.well -->
+<div class="well sidebar-nav">
+  <ul class="nav nav-list">
+    <li class="nav-header">Print</li>
+    <li><a href="<?php echo $domain; ?>print_stock_sheet.php">Stock Sheet</a></li>
   </ul>
 </div><!--/.well -->
