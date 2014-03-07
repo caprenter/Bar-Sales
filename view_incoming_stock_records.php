@@ -109,7 +109,7 @@ include('theme/header.php');
           </div>
           <!-- Edit Button-->
           <div class="span1" style="margin-top: 17px;">
-            <form action="form_incoming_stock" method="post">
+            <form action="form_incoming_stock.php" method="post">
               <input type="hidden" name="incoming-stock-record-id" value="<?php echo $incoming_stock_record_id; ?>">
               <input class="event-id" type="submit" value="Edit">
            </form>

@@ -113,7 +113,7 @@ include('theme/header.php');
           </div>
           <!-- Edit Button-->
           <div class="span1" style="margin-top: 17px;">
-            <form action="form_sales_entry" method="post">
+            <form action="form_sales_entry.php" method="post">
               <input type="hidden" name="event-id" value="<?php echo $event_id; ?>">
               <input class="event-id" type="submit" value="Edit">
            </form>
