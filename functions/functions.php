@@ -496,6 +496,9 @@ function theme_stock_level_table ($received,$sold,$stock_take_data) {
     }
     //echo $white_ml;
     //echo $red_ml;
+    if (in_array($row['id'],$wine)) {
+      continue;
+    }
     $html .= '<tr>';
       $html .= '<td>' . htmlentities($row['name']) . '</td>';
       //$html .= '<td>' . $row['cost_price'] . '</td>';
