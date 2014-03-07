@@ -785,6 +785,7 @@ function theme_events_list($id=FALSE, $from = FALSE) {
 
 function theme_incoming_stock_list($id=FALSE) {
   global $db;
+  global $domain;
   $sql = "SELECT * FROM incoming_stock_record"; 
 
           if ($id != FALSE) {
@@ -801,7 +802,7 @@ function theme_incoming_stock_list($id=FALSE) {
   $html = '<ul class="all-events">';
   while($row = $result->fetch_assoc()){
     //print_r($row);
-    $html .= '<li>' . date("l jS F, Y",strtotime($row['date'])) . ': ' . htmlentities($row['supplier']) . ' [' . htmlentities(substr($row['notes'],0,100)) . ']</li>';
+    $html .= '<li><a href="'. $domain .'view_incoming_stock_records.php?incoming-stock-record-id=' . $row['id'] . '">' . date("l jS F, Y",strtotime($row['date'])) . ': ' . htmlentities($row['supplier']) . ' [' . htmlentities(substr($row['notes'],0,100)) . ']</a></li>';
   }
   $html .= '</ul>';
   return $html;
@@ -809,6 +810,7 @@ function theme_incoming_stock_list($id=FALSE) {
 
 function theme_stock_take_list($id=FALSE) {
   global $db;
+  global $domain;
   $sql = "SELECT * FROM stock_take_record"; 
 
           if ($id != FALSE) {
@@ -825,7 +827,7 @@ function theme_stock_take_list($id=FALSE) {
   $html = '<ul class="all-events">';
   while($row = $result->fetch_assoc()){
     //print_r($row);
-    $html .= '<li>' . date("l jS F, Y",strtotime($row['date'])) . ': ' . htmlentities($row['who']) . ' [' . htmlentities(substr($row['notes'],0,100)) . ']</li>';
+    $html .= '<li><a href="'. $domain .'view_stock_take_records.php?stock-take-record-id=' . $row['id'] . '">' . date("l jS F, Y",strtotime($row['date'])) . ': ' . htmlentities($row['who']) . ' [' . htmlentities(substr($row['notes'],0,100)) . ']</a></li>';
   }
   $html .= '</ul>';
   return $html;
