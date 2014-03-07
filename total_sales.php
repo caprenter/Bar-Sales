@@ -94,9 +94,11 @@ include('theme/header.php');
     </div><!--end Sidebar-->
         
   </div><!--end Row-->
+  <?php if (isset($event_type_id)) { ?>
   <div>
     <div><?php include('charts/chart.php'); ?></div>
   </div>
+  <?php } ?>
 </div>
 <?php
 include('theme/footer.php');
