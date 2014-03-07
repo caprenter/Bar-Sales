@@ -1,17 +1,50 @@
-Work on stock entry - incoming stock
+Monthly report - Each month in it's own column (charts calculates this)
 
-Edit cost and sales price
+Select events to group in a total sales view
+event_ids = 1,2,3,4,etc
 
-Edit stock items
+Group items - e.g. soft drinks, wine in percentage of sales
 
-home page view
+What's coming up - so what stock will we need??
+Projection, bottle of wine
+Projection - avarage, or we could take the biggest month
 
-Add stock, see stock levels etc
+Shrinkage
+Calculate wastage
+Set cost price of cans
+Calculate shrinkage cost total on each view stock take
 
-Total Sales could have total amounts added up like on individual event view
+Juice
+Need to deal with juice like wine
 
-Donish
-Verify a date has been entered
-Store zero values
-Delete event properly
-Order stock items by weight
+Might need a last changed timestamp.
+
+Group wine sales?
+
+Incoming stock needs to record costs at the time 
+check edit stock in record
+
+When to calculate shrinkage/delete shrinkage/recalculate
+
+Edit records that are already in.
+
+Add charts to total sales view.
+
+Done:
+Check sales record records cost
+check total on sales page is right - needs to use sales price
+http://localhost/Webs/Kirkgate/view_stock_levels.php
+add notes/name boxes
+fix event sales bug if sell price is changed
+add total cost to all sales
+All sales theme events list when null
+Check against valid event_type id's
+How to deal with Wine
+Stoke levels and stock take records should show bottles
+(sm, Me, Lg doesn't work here)
+Number of bottles used = (smallx125 + largex250 + medx175)/750 - rounded up to nearest whole number
+Don't need to set cost on individual glasses - we work that out against bottles /cartons.
+You can also sell a bottle of wine....
+Could put id of juice, bottles of wine in settings.php
+Per event avarage to total sales if in event-type view
+
