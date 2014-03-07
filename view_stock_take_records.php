@@ -130,17 +130,17 @@ include('theme/header.php');
               <h1><?php echo  $stock_take_record_details['who']; ?></h1>
           </div>
           <!-- Edit Button-->
-          <div class="span1" style="margin-top: 17px;">
+          <div class="span1 pull-right" style="margin-top: 17px;">
             <form action="form_stock_take.php" method="post">
               <input type="hidden" name="stock-take-record-id" value="<?php echo $stock_take_record_id; ?>">
-              <input class="event-id" type="submit" value="Edit">
+              <input class="event-id edit" type="submit" value="Edit">
            </form>
           </div>
           <!-- Delete Button-->
-          <div class="span1" style="margin-top: 17px;">
+          <div class="span1 pull-right" style="margin-top: 17px;">
             <form action="view_stock_take_records.php" method="post">
               <input type="hidden" name="stock-take-record-id" value="<?php echo $stock_take_record_id; ?>">
-              <input name ="delete" class="event-id" type="submit" value="Delete" onclick="return ConfirmDelete();">
+              <input name ="delete" class="event-id delete" type="submit" value="Delete" onclick="return ConfirmDelete();">
            </form>
           </div>
         </div>

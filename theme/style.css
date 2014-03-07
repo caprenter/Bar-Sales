@@ -28,6 +28,27 @@ input.select-event-id {
 margin-top: -9px;
 height: 30px;
 }
+
+input.edit {
+padding:11px 20px;
+background: #3ccf1a;
+border: 2px solid #999;
+font-weight:bold;
+font-size:1.2em;
+color: #fff;
+border-radius: 5px;
+}
+
+input.delete {
+padding:11px 20px;
+background: #fd051c;
+border: 2px solid #999;
+font-weight:bold;
+font-size:1.2em;
+color: #fff;
+border-radius: 5px;
+}
+
 .notes {
 clear:left;
 }
